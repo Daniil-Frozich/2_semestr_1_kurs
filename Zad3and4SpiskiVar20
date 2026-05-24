@@ -226,74 +226,216 @@ void List::addSorted(ORDER x)
     p->next = temp;
 }
 
-3. Dobavit k main
+3. 
+#include <iostream>
+#include <fstream>
+
+#include "ORDER.h"
+#include "Qsort.h"
 #include "List.h"
-(Posle sort)
-// ---------------- СПИСОК ----------------
-List lst;
+
+using namespace std;
 
 
-// добавление элементов
-for (int i = 0; i < n; i++)
+int main()
 {
-    lst.addLast(arr[i]);
+    // ---------------- ЧТЕНИЕ TXT ----------------
+    ifstream in("text.txt");
+
+    if (!in)
+    {
+        cout << "File ne otkrilsya\n";
+
+        return 1;
+    }
+
+
+    ORDER arr[8];
+
+    int n = 0;
+
+
+    while (n < 8 && in >> arr[n])
+    {
+        n++;
+    }
+
+    in.close();
+
+
+
+
+    // ---------------- ДО СОРТИРОВКИ ----------------
+    cout << "Do sortirovki:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+
+
+
+    // ---------------- СОРТИРОВКИ ----------------
+
+    bubbleSort(arr, n);
+
+    //selectionSort(arr, n);
+
+    //insertionSort(arr, n);
+
+    //shellSort(arr, n);
+
+    //quickSort(arr, 0, n - 1);
+
+    //qsort(arr, n, sizeof(ORDER), compareOrder);
+
+
+
+
+    // ---------------- ПОСЛЕ СОРТИРОВКИ ----------------
+    cout << "\nPosle sortirovki:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+
+
+
+    // ---------------- СПИСОК ----------------
+    List lst;
+
+
+
+    // добавление в список
+    for (int i = 0; i < n; i++)
+    {
+        lst.addLast(arr[i]);
+    }
+
+
+
+    // вывод списка
+    cout << "\nSpisok:\n\n";
+
+    lst.print();
+
+
+
+
+    // ---------------- ПОИСК В СПИСКЕ ----------------
+    char findPayer[20];
+
+    cout << "\nVvedite schet dlya poiska: ";
+
+    cin >> findPayer;
+
+
+    if (lst.find(findPayer))
+    {
+        cout << "Element nayden\n";
+    }
+    else
+    {
+        cout << "Element ne nayden\n";
+    }
+
+
+
+
+    // ---------------- УДАЛЕНИЕ ----------------
+    char delPayer[20];
+
+    cout << "\nVvedite schet dlya udaleniya: ";
+
+    cin >> delPayer;
+
+
+    lst.remove(delPayer);
+
+
+    cout << "\nPosle udaleniya:\n\n";
+
+    lst.print();
+
+
+
+
+    // ---------------- ДОБАВЛЕНИЕ В СОРТ СПИСОК ----------------
+    ORDER x("50000",
+        "77777",
+        9000);
+
+    lst.addSorted(x);
+
+
+    cout << "\nPosle addSorted:\n\n";
+
+    lst.print();
+
+
+
+
+    // ---------------- БИНАРНЫЙ ФАЙЛ ----------------
+    ofstream out("man.bin",
+        ios::binary);
+
+
+    out.write((char*)arr,
+        n * sizeof(ORDER));
+
+    out.close();
+
+
+
+
+    // ---------------- ЧТЕНИЕ BIN ----------------
+    ifstream fin("man.bin",
+        ios::binary);
+
+
+    ORDER temp;
+
+    char search[20];
+
+    cout << "\nVvedite schet platelshika: ";
+
+    cin >> search;
+
+
+    bool found = false;
+
+
+
+    while (fin.read((char*)&temp,
+        sizeof(ORDER)))
+    {
+        if (strcmp(temp.getPayer(),
+            search) == 0)
+        {
+            cout << "\nNaydena zapis:\n";
+
+            cout << temp << endl;
+
+            cout << "Summa: "
+                << temp.getSum()
+                << endl;
+
+            found = true;
+        }
+    }
+
+
+
+    if (!found)
+    {
+        cout << "\nSchet ne nayden\n";
+    }
+
+
+    fin.close();
+
+    return 0;
 }
-
-
-// вывод списка
-cout << "\nSpisok:\n\n";
-
-lst.print();
-
-
-
-
-// поиск
-char findPayer[20];
-
-cout << "\nVvedite schet dlya poiska: ";
-
-cin >> findPayer;
-
-
-if (lst.find(findPayer))
-{
-    cout << "Element nayden\n";
-}
-else
-{
-    cout << "Element ne nayden\n";
-}
-
-
-
-
-// удаление
-char delPayer[20];
-
-cout << "\nVvedite schet dlya udaleniya: ";
-
-cin >> delPayer;
-
-
-lst.remove(delPayer);
-
-
-cout << "\nPosle udaleniya:\n\n";
-
-lst.print();
-
-
-
-
-// вставка в сортированный список
-ORDER x("50000",
-    "77777",
-    9000);
-
-lst.addSorted(x);
-
-
-cout << "\nPosle addSorted:\n\n";
-
-lst.print();
