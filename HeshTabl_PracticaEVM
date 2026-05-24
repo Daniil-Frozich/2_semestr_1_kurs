@@ -1,0 +1,177 @@
+// ORDER.h
+
+#ifndef ORDER_H
+#define ORDER_H
+
+#include <iostream>
+using namespace std;
+
+class ORDER
+{
+public:
+    char sender[20];
+    char receiver[20];
+    int senderAccount;
+    int receiverAccount;
+    double sum;
+
+    void input();
+    void output();
+};
+
+#endif
+
+// ORDER.cpp
+
+#include "ORDER.h"
+#include <cstring>
+
+void ORDER::input()
+{
+    cout << "Sender: ";
+    cin >> sender;
+
+    cout << "Receiver: ";
+    cin >> receiver;
+
+    cout << "Sender account: ";
+    cin >> senderAccount;
+
+    cout << "Receiver account: ";
+    cin >> receiverAccount;
+
+    cout << "Sum: ";
+    cin >> sum;
+}
+
+void ORDER::output()
+{
+    cout << "Sender: " << sender << endl;
+    cout << "Receiver: " << receiver << endl;
+    cout << "Sender account: " << senderAccount << endl;
+    cout << "Receiver account: " << receiverAccount << endl;
+    cout << "Sum: " << sum << endl;
+}
+
+// main.cpp
+
+#include <iostream>
+#include <fstream>
+#include "ORDER.h"
+
+using namespace std;
+
+const int M = 10;
+
+struct HashNode
+{
+    int key;
+    int index;
+    bool used;
+};
+
+int hashFunction(int key)
+{
+    return key % M;
+}
+
+void initHash(HashNode table[])
+{
+    for (int i = 0; i < M; i++)
+    {
+        table[i].used = false;
+    }
+}
+
+void insertHash(HashNode table[], int key, int index)
+{
+    int h = hashFunction(key);
+
+    while (table[h].used)
+    {
+        h = (h + 1) % M;
+    }
+
+    table[h].key = key;
+    table[h].index = index;
+    table[h].used = true;
+}
+
+int searchHash(HashNode table[], int key)
+{
+    int h = hashFunction(key);
+    int start = h;
+
+    while (table[h].used)
+    {
+        if (table[h].key == key)
+        {
+            return table[h].index;
+        }
+
+        h = (h + 1) % M;
+
+        if (h == start)
+        {
+            break;
+        }
+    }
+
+    return -1;
+}
+
+int main()
+{
+    ORDER ord;
+    HashNode table[M];
+
+    initHash(table);
+
+    ofstream fout("orders.dat", ios::binary);
+
+    int n;
+
+    cout << "Number of records: ";
+    cin >> n;
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << "\nRecord " << i + 1 << endl;
+
+        ord.input();
+
+        fout.write((char*)&ord, sizeof(ORDER));
+
+        // ключ = senderAccount
+        insertHash(table, ord.senderAccount, i);
+    }
+
+    fout.close();
+
+    int key;
+
+    cout << "\nEnter sender account for search: ";
+    cin >> key;
+
+    int pos = searchHash(table, key);
+
+    if (pos == -1)
+    {
+        cout << "Record not found" << endl;
+    }
+    else
+    {
+        ifstream fin("orders.dat", ios::binary);
+
+        fin.seekg(pos * sizeof(ORDER), ios::beg);
+
+        fin.read((char*)&ord, sizeof(ORDER));
+
+        cout << "\nFound record:\n";
+        ord.output();
+
+        fin.close();
+    }
+
+    return 0;
+}
