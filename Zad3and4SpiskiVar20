@@ -1,4 +1,3 @@
-Node.h
 List.h
 List.cpp
 main.cpp
@@ -9,6 +8,9 @@ Dobavlyat k proshlomy zad (3)
 
 #include "ORDER.h"
 
+
+
+// ---------------- УЗЕЛ ----------------
 class Node
 {
 public:
@@ -17,19 +19,13 @@ public:
 
     Node* next;
 
-    Node(ORDER d)
-    {
-        data = d;
-
-        next = NULL;
-    }
+    Node(ORDER x);
 };
 
-2.
-#pragma once
 
-#include "Node.h"
 
+
+// ---------------- СПИСОК ----------------
 class List
 {
 private:
@@ -42,48 +38,71 @@ public:
 
     bool empty();
 
-    void addBegin(ORDER x);
+    void addFirst(ORDER x);
 
-    void addEnd(ORDER x);
-
-    bool find(char* payer);
-
-    void remove(char* payer);
-
-    void addSort(ORDER x);
+    void addLast(ORDER x);
 
     void print();
+
+    bool find(const char* payer);
+
+    void remove(const char* payer);
+
+    void addSorted(ORDER x);
 };
 
-3.
+2.
 #include "List.h"
 
+
+
+// ---------------- NODE ----------------
+Node::Node(ORDER x)
+{
+    data = x;
+
+    next = NULL;
+}
+
+
+
+
+// ---------------- LIST ----------------
 List::List()
 {
     head = NULL;
 }
 
+
+
+// пуст ли список
 bool List::empty()
 {
     return head == NULL;
 }
 
-void List::addBegin(ORDER x)
+
+
+// добавление в начало
+void List::addFirst(ORDER x)
 {
-    Node* t = new Node(x);
+    Node* temp = new Node(x);
 
-    t->next = head;
+    temp->next = head;
 
-    head = t;
+    head = temp;
 }
 
-void List::addEnd(ORDER x)
+
+
+// добавление в конец
+void List::addLast(ORDER x)
 {
-    Node* t = new Node(x);
+    Node* temp = new Node(x);
 
     if (empty())
     {
-        head = t;
+        head = temp;
 
         return;
     }
@@ -95,10 +114,28 @@ void List::addEnd(ORDER x)
         p = p->next;
     }
 
-    p->next = t;
+    p->next = temp;
 }
 
-bool List::find(char* payer)
+
+
+// печать
+void List::print()
+{
+    Node* p = head;
+
+    while (p != NULL)
+    {
+        cout << p->data << endl;
+
+        p = p->next;
+    }
+}
+
+
+
+// поиск
+bool List::find(const char* payer)
 {
     Node* p = head;
 
@@ -116,59 +153,66 @@ bool List::find(char* payer)
     return false;
 }
 
-void List::remove(char* payer)
+
+
+// удаление
+void List::remove(const char* payer)
 {
     if (empty())
     {
         return;
     }
 
-    if (strcmp(head->data.getPayer(),
-        payer) == 0)
-    {
-        Node* t = head;
-
-        head = head->next;
-
-        delete t;
-
-        return;
-    }
-
     Node* p = head;
 
-    while (p->next != NULL)
+    Node* prev = NULL;
+
+
+    while (p != NULL)
     {
-        if (strcmp(p->next->data.getPayer(),
+        if (strcmp(p->data.getPayer(),
             payer) == 0)
         {
-            Node* t = p->next;
+            if (prev == NULL)
+            {
+                head = p->next;
+            }
+            else
+            {
+                prev->next = p->next;
+            }
 
-            p->next = t->next;
-
-            delete t;
+            delete p;
 
             return;
         }
+
+        prev = p;
 
         p = p->next;
     }
 }
 
-void List::addSort(ORDER x)
+
+
+// вставка в сортированный список
+void List::addSorted(ORDER x)
 {
-    Node* t = new Node(x);
+    Node* temp = new Node(x);
+
 
     if (empty() || x < head->data)
     {
-        t->next = head;
+        temp->next = head;
 
-        head = t;
+        head = temp;
 
         return;
     }
 
+
     Node* p = head;
+
 
     while (p->next != NULL &&
         p->next->data < x)
@@ -176,173 +220,80 @@ void List::addSort(ORDER x)
         p = p->next;
     }
 
-    t->next = p->next;
 
-    p->next = t;
+    temp->next = p->next;
+
+    p->next = temp;
 }
 
-void List::print()
-{
-    Node* p = head;
-
-    while (p != NULL)
-    {
-        cout << p->data << endl;
-
-        p = p->next;
-    }
-}
-
-4.
-#include "ORDER.h"
-#include "Sort.h"
+3. Dobavit k main
 #include "List.h"
+(Posle sort)
+// ---------------- СПИСОК ----------------
+List lst;
 
-int main()
+
+// добавление элементов
+for (int i = 0; i < n; i++)
 {
-    ifstream in("text.txt");
-
-    if (!in)
-    {
-        cout << "File error\n";
-
-        return 1;
-    }
-
-    ORDER arr[10];
-
-    int n = 0;
-
-    while (in >> arr[n])
-    {
-        n++;
-    }
-
-    in.close();
-
-    cout << "Before sort:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << arr[i] << endl;
-    }
-
-    bubbleSort(arr, n);
-
-    cout << "\nAfter bubble sort:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << arr[i] << endl;
-    }
-
-    qsort(arr, 0, n - 1);
-
-    cout << "\nAfter quick sort:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << arr[i] << endl;
-    }
-
-    ::qsort(arr,
-        n,
-        sizeof(ORDER),
-        ORDER::compORDER);
-
-    cout << "\nAfter library qsort:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << arr[i] << endl;
-    }
-
-    ofstream out("orders.bin",
-        ios::binary);
-
-    out.write((char*)arr,
-        n * sizeof(ORDER));
-
-    out.close();
-
-    ORDER temp[10];
-
-    ifstream inBin("orders.bin",
-        ios::binary);
-
-    inBin.read((char*)temp,
-        n * sizeof(ORDER));
-
-    inBin.close();
-
-    cout << "\nFrom binary file:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << temp[i] << endl;
-    }
-
-    char s[20];
-
-    cout << "\nInput payer: ";
-
-    cin >> s;
-
-    bool found = false;
-
-    for (int i = 0; i < n; i++)
-    {
-        if (strcmp(temp[i].getPayer(),
-            s) == 0)
-        {
-            cout << "Sum: "
-                << temp[i].getSum()
-                << endl;
-
-            found = true;
-        }
-    }
-
-    if (!found)
-    {
-        cout << "Not found\n";
-    }
-
-    List lst;
-
-    for (int i = 0; i < n; i++)
-    {
-        lst.addEnd(arr[i]);
-    }
-
-    cout << "\nLIST:\n\n";
-
-    lst.print();
-
-    if (lst.find(s))
-    {
-        cout << "\nFound in list\n";
-    }
-    else
-    {
-        cout << "\nNot found in list\n";
-    }
-
-    lst.remove(s);
-
-    cout << "\nAfter remove:\n\n";
-
-    lst.print();
-
-    ORDER x("11111",
-        "22222",
-        5000);
-
-    lst.addSort(x);
-
-    cout << "\nAfter addSort:\n\n";
-
-    lst.print();
-
-    return 0;
+    lst.addLast(arr[i]);
 }
+
+
+// вывод списка
+cout << "\nSpisok:\n\n";
+
+lst.print();
+
+
+
+
+// поиск
+char findPayer[20];
+
+cout << "\nVvedite schet dlya poiska: ";
+
+cin >> findPayer;
+
+
+if (lst.find(findPayer))
+{
+    cout << "Element nayden\n";
+}
+else
+{
+    cout << "Element ne nayden\n";
+}
+
+
+
+
+// удаление
+char delPayer[20];
+
+cout << "\nVvedite schet dlya udaleniya: ";
+
+cin >> delPayer;
+
+
+lst.remove(delPayer);
+
+
+cout << "\nPosle udaleniya:\n\n";
+
+lst.print();
+
+
+
+
+// вставка в сортированный список
+ORDER x("50000",
+    "77777",
+    9000);
+
+lst.addSorted(x);
+
+
+cout << "\nPosle addSorted:\n\n";
+
+lst.print();
