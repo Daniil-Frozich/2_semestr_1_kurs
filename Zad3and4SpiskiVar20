@@ -1,0 +1,348 @@
+Node.h
+List.h
+List.cpp
+main.cpp
+Dobavlyat k proshlomy zad (3)
+
+1.
+#pragma once
+
+#include "ORDER.h"
+
+class Node
+{
+public:
+
+    ORDER data;
+
+    Node* next;
+
+    Node(ORDER d)
+    {
+        data = d;
+
+        next = NULL;
+    }
+};
+
+2.
+#pragma once
+
+#include "Node.h"
+
+class List
+{
+private:
+
+    Node* head;
+
+public:
+
+    List();
+
+    bool empty();
+
+    void addBegin(ORDER x);
+
+    void addEnd(ORDER x);
+
+    bool find(char* payer);
+
+    void remove(char* payer);
+
+    void addSort(ORDER x);
+
+    void print();
+};
+
+3.
+#include "List.h"
+
+List::List()
+{
+    head = NULL;
+}
+
+bool List::empty()
+{
+    return head == NULL;
+}
+
+void List::addBegin(ORDER x)
+{
+    Node* t = new Node(x);
+
+    t->next = head;
+
+    head = t;
+}
+
+void List::addEnd(ORDER x)
+{
+    Node* t = new Node(x);
+
+    if (empty())
+    {
+        head = t;
+
+        return;
+    }
+
+    Node* p = head;
+
+    while (p->next != NULL)
+    {
+        p = p->next;
+    }
+
+    p->next = t;
+}
+
+bool List::find(char* payer)
+{
+    Node* p = head;
+
+    while (p != NULL)
+    {
+        if (strcmp(p->data.getPayer(),
+            payer) == 0)
+        {
+            return true;
+        }
+
+        p = p->next;
+    }
+
+    return false;
+}
+
+void List::remove(char* payer)
+{
+    if (empty())
+    {
+        return;
+    }
+
+    if (strcmp(head->data.getPayer(),
+        payer) == 0)
+    {
+        Node* t = head;
+
+        head = head->next;
+
+        delete t;
+
+        return;
+    }
+
+    Node* p = head;
+
+    while (p->next != NULL)
+    {
+        if (strcmp(p->next->data.getPayer(),
+            payer) == 0)
+        {
+            Node* t = p->next;
+
+            p->next = t->next;
+
+            delete t;
+
+            return;
+        }
+
+        p = p->next;
+    }
+}
+
+void List::addSort(ORDER x)
+{
+    Node* t = new Node(x);
+
+    if (empty() || x < head->data)
+    {
+        t->next = head;
+
+        head = t;
+
+        return;
+    }
+
+    Node* p = head;
+
+    while (p->next != NULL &&
+        p->next->data < x)
+    {
+        p = p->next;
+    }
+
+    t->next = p->next;
+
+    p->next = t;
+}
+
+void List::print()
+{
+    Node* p = head;
+
+    while (p != NULL)
+    {
+        cout << p->data << endl;
+
+        p = p->next;
+    }
+}
+
+4.
+#include "ORDER.h"
+#include "Sort.h"
+#include "List.h"
+
+int main()
+{
+    ifstream in("text.txt");
+
+    if (!in)
+    {
+        cout << "File error\n";
+
+        return 1;
+    }
+
+    ORDER arr[10];
+
+    int n = 0;
+
+    while (in >> arr[n])
+    {
+        n++;
+    }
+
+    in.close();
+
+    cout << "Before sort:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+    bubbleSort(arr, n);
+
+    cout << "\nAfter bubble sort:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+    qsort(arr, 0, n - 1);
+
+    cout << "\nAfter quick sort:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+    ::qsort(arr,
+        n,
+        sizeof(ORDER),
+        ORDER::compORDER);
+
+    cout << "\nAfter library qsort:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+    ofstream out("orders.bin",
+        ios::binary);
+
+    out.write((char*)arr,
+        n * sizeof(ORDER));
+
+    out.close();
+
+    ORDER temp[10];
+
+    ifstream inBin("orders.bin",
+        ios::binary);
+
+    inBin.read((char*)temp,
+        n * sizeof(ORDER));
+
+    inBin.close();
+
+    cout << "\nFrom binary file:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << temp[i] << endl;
+    }
+
+    char s[20];
+
+    cout << "\nInput payer: ";
+
+    cin >> s;
+
+    bool found = false;
+
+    for (int i = 0; i < n; i++)
+    {
+        if (strcmp(temp[i].getPayer(),
+            s) == 0)
+        {
+            cout << "Sum: "
+                << temp[i].getSum()
+                << endl;
+
+            found = true;
+        }
+    }
+
+    if (!found)
+    {
+        cout << "Not found\n";
+    }
+
+    List lst;
+
+    for (int i = 0; i < n; i++)
+    {
+        lst.addEnd(arr[i]);
+    }
+
+    cout << "\nLIST:\n\n";
+
+    lst.print();
+
+    if (lst.find(s))
+    {
+        cout << "\nFound in list\n";
+    }
+    else
+    {
+        cout << "\nNot found in list\n";
+    }
+
+    lst.remove(s);
+
+    cout << "\nAfter remove:\n\n";
+
+    lst.print();
+
+    ORDER x("11111",
+        "22222",
+        5000);
+
+    lst.addSort(x);
+
+    cout << "\nAfter addSort:\n\n";
+
+    lst.print();
+
+    return 0;
+}
