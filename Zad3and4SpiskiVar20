@@ -1,16 +1,158 @@
+ORDER.h
+ORDER.cpp
 List.h
 List.cpp
 main.cpp
-Dobavlyat k proshlomy zad (3)
+text.txt
 
 1.
+#pragma once
+
+#include <iostream>
+#include <fstream>
+#include <string.h>
+
+using namespace std;
+
+class ORDER
+{
+private:
+
+    char payer[20];
+    char receiver[20];
+    int sum;
+
+public:
+
+    ORDER();
+
+    ORDER(const char* p,
+        const char* r,
+        int s);
+
+    // сравнение
+    bool operator>(const ORDER& b);
+
+    bool operator<(const ORDER& b);
+
+    bool operator==(const ORDER& b);
+
+    // ввод вывод
+    friend ostream& operator<<(ostream& os,
+        const ORDER& m);
+
+    friend istream& operator>>(istream& is,
+        ORDER& m);
+
+    // получение данных
+    char* getPayer();
+
+    int getSum();
+
+    // вывод
+    void print();
+};
+
+2.
+#include "ORDER.h"
+
+ORDER::ORDER()
+{
+    payer[0] = '\0';
+
+    receiver[0] = '\0';
+
+    sum = 0;
+}
+
+ORDER::ORDER(const char* p,
+    const char* r,
+    int s)
+{
+    strcpy_s(payer, p);
+
+    strcpy_s(receiver, r);
+
+    sum = s;
+}
+
+
+// ---------------- СРАВНЕНИЕ ----------------
+bool ORDER::operator>(const ORDER& b)
+{
+    return strcmp(payer,
+        b.payer) > 0;
+}
+
+bool ORDER::operator<(const ORDER& b)
+{
+    return strcmp(payer,
+        b.payer) < 0;
+}
+
+bool ORDER::operator==(const ORDER& b)
+{
+    return strcmp(payer,
+        b.payer) == 0;
+}
+
+
+
+// ---------------- ВЫВОД ----------------
+ostream& operator<<(ostream& os,
+    const ORDER& m)
+{
+    os << m.payer << " "
+        << m.receiver << " "
+        << m.sum;
+
+    return os;
+}
+
+
+
+// ---------------- ВВОД ----------------
+istream& operator>>(istream& is,
+    ORDER& m)
+{
+    is >> m.payer
+        >> m.receiver
+        >> m.sum;
+
+    return is;
+}
+
+
+
+// ---------------- GET ----------------
+char* ORDER::getPayer()
+{
+    return payer;
+}
+
+int ORDER::getSum()
+{
+    return sum;
+}
+
+
+
+// ---------------- PRINT ----------------
+void ORDER::print()
+{
+    cout << payer << " "
+        << receiver << " "
+        << sum << endl;
+}
+
+3.
 #pragma once
 
 #include "ORDER.h"
 
 
 
-// ---------------- УЗЕЛ ----------------
+// ---------------- NODE ----------------
 class Node
 {
 public:
@@ -25,7 +167,7 @@ public:
 
 
 
-// ---------------- СПИСОК ----------------
+// ---------------- LIST ----------------
 class List
 {
 private:
@@ -51,7 +193,7 @@ public:
     void addSorted(ORDER x);
 };
 
-2.
+4.
 #include "List.h"
 
 
@@ -226,12 +368,11 @@ void List::addSorted(ORDER x)
     p->next = temp;
 }
 
-3. 
+5.
 #include <iostream>
 #include <fstream>
 
 #include "ORDER.h"
-#include "Qsort.h"
 #include "List.h"
 
 using namespace std;
@@ -265,36 +406,8 @@ int main()
 
 
 
-    // ---------------- ДО СОРТИРОВКИ ----------------
-    cout << "Do sortirovki:\n\n";
-
-    for (int i = 0; i < n; i++)
-    {
-        cout << arr[i] << endl;
-    }
-
-
-
-
-    // ---------------- СОРТИРОВКИ ----------------
-
-    bubbleSort(arr, n);
-
-    //selectionSort(arr, n);
-
-    //insertionSort(arr, n);
-
-    //shellSort(arr, n);
-
-    //quickSort(arr, 0, n - 1);
-
-    //qsort(arr, n, sizeof(ORDER), compareOrder);
-
-
-
-
-    // ---------------- ПОСЛЕ СОРТИРОВКИ ----------------
-    cout << "\nPosle sortirovki:\n\n";
+    // ---------------- ВЫВОД ДАННЫХ ----------------
+    cout << "Dannie iz faila:\n\n";
 
     for (int i = 0; i < n; i++)
     {
@@ -363,7 +476,7 @@ int main()
 
 
 
-    // ---------------- ДОБАВЛЕНИЕ В СОРТ СПИСОК ----------------
+    // ---------------- ДОБАВЛЕНИЕ ----------------
     ORDER x("50000",
         "77777",
         9000);
@@ -439,3 +552,13 @@ int main()
 
     return 0;
 }
+
+6.
+12345 54321 1000
+22222 33333 2000
+11111 44444 1500
+55555 66666 3000
+77777 88888 500
+99999 00000 1200
+13579 24680 700
+11223 44556 900
