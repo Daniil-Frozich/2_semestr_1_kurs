@@ -1,0 +1,474 @@
+ORDER.h
+ORDER.cpp
+Qsort.h
+main.cpp
+text.txt
+
+1.
+#pragma once
+#include <iostream>
+#include <fstream>
+#include <string.h>
+
+using namespace std;
+
+class ORDER
+{
+private:
+    char payer[20];
+    char receiver[20];
+    int sum;
+
+public:
+
+    ORDER(const char* p, const char* r, int s);
+    ORDER();
+
+    // сравнение
+    bool operator>(const ORDER& b);
+    bool operator<(const ORDER& b);
+    bool operator==(const ORDER& b);
+
+    // работа с файлами
+    friend ostream& operator<<(ostream& os, const ORDER& m);
+    friend istream& operator>>(istream& is, ORDER& m);
+
+    // поиск
+    char* getPayer();
+
+    int getSum();
+
+    // вывод
+    void print();
+};
+
+2.
+#include "ORDER.h"
+
+
+ORDER::ORDER(const char* p, const char* r, int s)
+{
+    strcpy_s(payer, p);
+
+    strcpy_s(receiver, r);
+
+    sum = s;
+}
+
+
+ORDER::ORDER()
+{
+    payer[0] = '\0';
+
+    receiver[0] = '\0';
+
+    sum = 0;
+}
+
+
+// сравнение
+bool ORDER::operator>(const ORDER& b)
+{
+    return strcmp(payer, b.payer) > 0;
+}
+
+bool ORDER::operator<(const ORDER& b)
+{
+    return strcmp(payer, b.payer) < 0;
+}
+
+bool ORDER::operator==(const ORDER& b)
+{
+    return strcmp(payer, b.payer) == 0;
+}
+
+
+
+// вывод
+ostream& operator<<(ostream& os, const ORDER& m)
+{
+    os << m.payer << " "
+        << m.receiver << " "
+        << m.sum;
+
+    return os;
+}
+
+
+
+// ввод
+istream& operator>>(istream& is, ORDER& m)
+{
+    is >> m.payer
+        >> m.receiver
+        >> m.sum;
+
+    return is;
+}
+
+
+
+char* ORDER::getPayer()
+{
+    return payer;
+}
+
+int ORDER::getSum()
+{
+    return sum;
+}
+
+
+void ORDER::print()
+{
+    cout << payer << " "
+        << receiver << " "
+        << sum << endl;
+}
+
+3.
+#pragma once
+
+#include <cstdlib>
+#include "ORDER.h"
+
+
+// ---------------- BUBBLE SORT ----------------
+template <class T>
+void bubbleSort(T* arr, int n)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        for (int j = 0; j < n - i - 1; j++)
+        {
+            // сравнение объектов через operator >
+            if (arr[j].operator>(arr[j + 1]))
+            {
+                T temp = arr[j];
+
+                arr[j] = arr[j + 1];
+
+                arr[j + 1] = temp;
+            }
+        }
+    }
+}
+
+
+
+// ---------------- SELECTION SORT ----------------
+template <class T>
+void selectionSort(T* arr, int n)
+{
+    for (int i = 0; i < n - 1; i++)
+    {
+        int min = i;
+
+        for (int j = i + 1; j < n; j++)
+        {
+            // сравнение объектов
+            if (arr[min].operator>(arr[j]))
+            {
+                min = j;
+            }
+        }
+
+        T temp = arr[i];
+
+        arr[i] = arr[min];
+
+        arr[min] = temp;
+    }
+}
+
+
+
+// ---------------- INSERTION SORT ----------------
+template <class T>
+void insertionSort(T* arr, int n)
+{
+    for (int i = 1; i < n; i++)
+    {
+        T x = arr[i];
+
+        int j = i - 1;
+
+        // пока элемент слева больше
+        while (j >= 0 && arr[j].operator>(x))
+        {
+            arr[j + 1] = arr[j];
+
+            j--;
+        }
+
+        arr[j + 1] = x;
+    }
+}
+
+
+
+// ---------------- SHELL SORT ----------------
+template <class T>
+void shellSort(T* arr, int n)
+{
+    for (int step = n / 2; step > 0; step = step / 2)
+    {
+        for (int i = step; i < n; i++)
+        {
+            T x = arr[i];
+
+            int j = i;
+
+            while (j >= step &&
+                arr[j - step].operator>(x))
+            {
+                arr[j] = arr[j - step];
+
+                j = j - step;
+            }
+
+            arr[j] = x;
+        }
+    }
+}
+
+
+
+// ---------------- QUICK SORT ----------------
+template <class T>
+void quickSort(T* arr, int left, int right)
+{
+    int k = (left + right) / 2;
+
+    // опорный элемент
+    T x = arr[k];
+
+    int i = left;
+
+    int j = right;
+
+    do
+    {
+        // поиск слева
+        while (arr[i].operator<(x))
+        {
+            i++;
+        }
+
+        // поиск справа
+        while (arr[j].operator>(x))
+        {
+            j--;
+        }
+
+        // обмен элементов
+        if (i <= j)
+        {
+            T temp = arr[i];
+
+            arr[i] = arr[j];
+
+            arr[j] = temp;
+
+            i++;
+
+            j--;
+        }
+
+    } while (i <= j);
+
+
+    // рекурсия слева
+    if (left < j)
+    {
+        quickSort(arr, left, j);
+    }
+
+
+    // рекурсия справа
+    if (i < right)
+    {
+        quickSort(arr, i, right);
+    }
+}
+
+
+
+// ---------------- QSORT C ----------------
+static int compareOrder(const void* x, const void* y)
+{
+    ORDER* a = (ORDER*)x;
+
+    ORDER* b = (ORDER*)y;
+
+    // сравнение payer
+    return strcmp(a->getPayer(),
+        b->getPayer());
+}
+
+4.
+#include <iostream>
+#include <fstream>
+
+#include "ORDER.h"
+#include "Qsort.h"
+
+using namespace std;
+
+
+int main()
+{
+    // открытие текстового файла
+    ifstream in("text.txt");
+
+
+    // проверка открытия файла
+    if (!in)
+    {
+        cout << "File ne otkrilsya\n";
+
+        return 1;
+    }
+
+
+    // массив объектов
+    ORDER arr[8];
+
+
+    // количество элементов
+    int n = 0;
+
+
+    // чтение объектов из файла
+    while (n < 8 && in >> arr[n])
+    {
+        n++;
+    }
+
+
+    // закрываем файл
+    in.close();
+
+
+
+    // ---------------- ДО СОРТИРОВКИ ----------------
+    cout << "Do sortirovki:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+
+
+    // ---------------- СОРТИРОВКА ----------------
+
+    // bubble sort
+    bubbleSort(arr, n);
+
+    // selection sort
+    //selectionSort(arr, n);
+
+    // insertion sort
+    //insertionSort(arr, n);
+
+    // shell sort
+    //shellSort(arr, n);
+
+    // quick sort
+    //quickSort(arr, 0, n - 1);
+
+    // qsort C
+    //qsort(arr, n, sizeof(ORDER), compareOrder);
+
+
+
+    // ---------------- ПОСЛЕ СОРТИРОВКИ ----------------
+    cout << "\nPosle sortirovki:\n\n";
+
+    for (int i = 0; i < n; i++)
+    {
+        cout << arr[i] << endl;
+    }
+
+
+
+    // ---------------- ЗАПИСЬ В БИНАРНЫЙ ФАЙЛ ----------------
+    ofstream out("man.bin", ios::binary);
+
+
+    // запись массива
+    out.write((char*)arr,
+        n * sizeof(ORDER));
+
+
+    out.close();
+
+
+
+    // ---------------- ЧТЕНИЕ ИЗ БИНАРНОГО ФАЙЛА ----------------
+    ifstream fin("man.bin", ios::binary);
+
+
+    // объект для чтения
+    ORDER temp;
+
+
+    // счет для поиска
+    char search[20];
+
+
+    cout << "\nVvedite schet platelshika: ";
+
+    cin >> search;
+
+
+    // найден ли счет
+    bool found = false;
+
+
+
+    // чтение объектов из бинарного файла
+    while (fin.read((char*)&temp,
+        sizeof(ORDER)))
+    {
+        // сравнение счетов
+        if (strcmp(temp.getPayer(),
+            search) == 0)
+        {
+            cout << "\nNaydena zapis:\n";
+
+            cout << temp << endl;
+
+            cout << "Summa: "
+                << temp.getSum()
+                << endl;
+
+            found = true;
+        }
+    }
+
+
+
+    // если счет не найден
+    if (!found)
+    {
+        cout << "\nSchet ne nayden\n";
+    }
+
+
+    fin.close();
+
+
+    return 0;
+}
+
+5.
+12345 54321 1000
+22222 33333 2000
+11111 44444 1500
+55555 66666 3000
+77777 88888 500
+99999 00000 1200
+13579 24680 700
+11223 44556 900
